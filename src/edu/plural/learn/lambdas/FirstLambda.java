@@ -1,4 +1,4 @@
-package edu.plural.learn;
+package edu.plural.learn.lambdas;
 
 import java.io.File;
 import java.io.FileFilter;
