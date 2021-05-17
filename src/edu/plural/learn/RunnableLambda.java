@@ -6,15 +6,11 @@ public class RunnableLambda {
 
     private static Runnable createAnonymousRunnable() {
         return new Runnable() {
-
             @Override
             public void run() {
-
                 for ( int i = 0; i < 3; i++ ) {
                     System.out.println(
-                            "Anonymous Hello World from thread [" +
-                                    Thread.currentThread().getName() +
-                                    "]"
+                        "Anonymous Hello World from thread [" + Thread.currentThread().getName() + "]"
                     );
                 }
             }
