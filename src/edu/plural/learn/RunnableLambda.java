@@ -1,5 +1,7 @@
 package edu.plural.learn;
 
+import java.util.Arrays;
+
 public class RunnableLambda {
 
     private static Runnable createAnonymousRunnable() {
@@ -18,16 +20,13 @@ public class RunnableLambda {
             }
         };
     }
+
     private static Runnable createLambdaRunnable() {
-        return () -> {
-            for ( int i = 0; i < 3; i++ ) {
-                System.out.println(
-                        "Lambda Hello World from thread [" +
-                                Thread.currentThread().getName() +
-                                "]"
-                );
-            }
-        };
+        return () -> Arrays.asList(
+                "Lambda Hello World from thread [" + Thread.currentThread().getName() + "]",
+                "Lambda Hello World from thread [" + Thread.currentThread().getName() + "]",
+                "Lambda Hello World from thread [" + Thread.currentThread().getName() + "]"
+        ).forEach(System.out::println);
     }
 
     private static void run( final Runnable runnable ) throws InterruptedException {

@@ -10,7 +10,7 @@ public class FirstLambda {
     private final static String EXTENSION_PROPERTIES = ".properties";
 
     private static FileFilter fetchFilterWithLambda() {
-        return (File file) -> file.getName().endsWith(EXTENSION_JAR);
+        return f -> f.getName().endsWith(EXTENSION_JAR);
     }
 
     private static FileFilter fetchFilterWithoutLambda() {

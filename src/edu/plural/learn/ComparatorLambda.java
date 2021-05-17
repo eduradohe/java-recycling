@@ -17,7 +17,7 @@ public class ComparatorLambda {
     }
 
     private static Comparator<String> createLambdaComparator() {
-        return (String o1, String o2) -> Integer.compare(o2.length(), o1.length());
+        return (s1, s2) -> Integer.compare(s2.length(), s1.length());
     }
 
     private static List<String> createStringList() {
@@ -25,7 +25,7 @@ public class ComparatorLambda {
     }
 
     private static void printList( final List<String> strings ) {
-        for ( final String s: strings ) System.out.println(s);
+        strings.forEach(System.out::println);
     }
 
     public static void main(String[] args) {
