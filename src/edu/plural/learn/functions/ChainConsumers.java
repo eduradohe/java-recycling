@@ -8,25 +8,48 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChainConsumers {
 
+    private final static List<Person> PERSONS = Arrays.asList(
+            GenericBuilder.of(Person::new).with(Person::setName, "Eduardo").with(Person::setAge, 33).build(),
+            GenericBuilder.of(Person::new).with(Person::setName, "Karolina").with(Person::setAge, 30).build(),
+            GenericBuilder.of(Person::new).with(Person::setName, "Rafal").with(Person::setAge, 8).build(),
+            GenericBuilder.of(Person::new).with(Person::setName, "Rafaela").with(Person::setAge, 18).build(),
+            GenericBuilder.of(Person::new).with(Person::setName, "Thiago").with(Person::setAge, 25).build()
+    );
+
+    private static List<Person> getOnePersonCopiedList() {
+        return Arrays.asList(GenericBuilder.of(Person::new).with(Person::setPerson, PERSONS.get(0)).build());
+    }
+
+    private static Integer sumOneElement() {
+        final Stream<Integer> agesStream = getOnePersonCopiedList().stream().map(Person::getAge);
+        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
+    }
+
+    private static Integer sumEmpty() {
+        final Stream<Integer> agesStream = Stream.empty();
+        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
+    }
+
+    private static Integer sumAges() {
+        final Stream<Integer> agesStream = PERSONS.stream().map(Person::getAge);
+        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
+    }
+
     private static void chainPersons() {
-
-        final List<Person> persons = Arrays.asList(
-                GenericBuilder.of(Person::new).with(Person::setName, "Eduardo").with(Person::setAge, 33).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, "Karolina").with(Person::setAge, 30).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, "Rafal").with(Person::setAge, 5).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, "Rafaela").with(Person::setAge, 18).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, "Thiago").with(Person::setAge, 25).build()
-        );
-
-        final List<String> result = persons.stream()
+        final List<String> result = PERSONS.stream()
                 .filter(p -> (p.getAge() > 20 && p.getAge() < 30))
                 .map(p -> "[" + p.getName() + ", " + p.getAge().toString() + "]")
                 .collect(Collectors.toList());
 
         result.forEach(System.out::println);
+
+        System.out.println("Sum of everyone's ages: " + sumAges());
+        System.out.println("Sum of empty Stream: " + sumEmpty());
+        System.out.println("Sum of 1 element Stream: " + sumOneElement());
     }
 
     private static void chainSimpleStrings() {
