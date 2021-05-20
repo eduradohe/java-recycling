@@ -57,6 +57,11 @@ public class ChainConsumers {
         chainPersons();
     }
 
+    /**
+     * Encapsulates default person data mass and provides methods for accessing it as an immutable list, in which
+     * this method will provide copies of the elements on original list to be used and changed safely as the
+     * original list will be kept and available for generating new copies at will
+     */
     private static class PersonList {
 
         private final List<Person> persons;
