@@ -12,33 +12,23 @@ import java.util.stream.Stream;
 
 public class ChainConsumers {
 
-    private final static List<Person> PERSONS = Arrays.asList(
-            GenericBuilder.of(Person::new).with(Person::setName, "Eduardo").with(Person::setAge, 33).build(),
-            GenericBuilder.of(Person::new).with(Person::setName, "Karolina").with(Person::setAge, 30).build(),
-            GenericBuilder.of(Person::new).with(Person::setName, "Rafal").with(Person::setAge, 8).build(),
-            GenericBuilder.of(Person::new).with(Person::setName, "Rafaela").with(Person::setAge, 18).build(),
-            GenericBuilder.of(Person::new).with(Person::setName, "Thiago").with(Person::setAge, 25).build()
-    );
-
-    private static List<Person> getOnePersonCopiedList() {
-        return Arrays.asList(GenericBuilder.of(Person::new).with(Person::setPerson, PERSONS.get(0)).build());
-    }
+    private static final PersonList PERSON_LIST = new PersonList();
 
     private static Integer sum(final Stream<Integer> agesStream) {
         return agesStream.reduce(0, (age1, age2) -> age1 + age2);
     }
 
     private static void chainPersons() {
-        final List<String> result = PERSONS.stream()
+        final List<String> result = PERSON_LIST.getPersons().stream()
                 .filter(p -> (p.getAge() > 20 && p.getAge() < 30))
                 .map(p -> "[" + p.getName() + ", " + p.getAge().toString() + "]")
                 .collect(Collectors.toList());
 
         result.forEach(System.out::println);
 
-        System.out.println("Sum of everyone's ages: " + sum(PERSONS.stream().map(Person::getAge)));
+        System.out.println("Sum of everyone's ages: " + sum(PERSON_LIST.getPersons().stream().map(Person::getAge)));
         System.out.println("Sum of empty Stream: " + sum(Stream.empty()));
-        System.out.println("Sum of 1 element Stream: " + sum(getOnePersonCopiedList().stream().map(Person::getAge)));
+        System.out.println("Sum of 1 element Stream: " + sum(PERSON_LIST.getOnePersonCopiedList().stream().map(Person::getAge)));
     }
 
     private static void chainSimpleStrings() {
@@ -65,5 +55,42 @@ public class ChainConsumers {
     public static void main(String[] args) {
         chainSimpleStrings();
         chainPersons();
+    }
+
+    private static class PersonList {
+
+        private final List<Person> persons;
+
+        PersonList() {
+            super();
+            this.persons = Arrays.asList(
+                    GenericBuilder.of(Person::new).with(Person::setName, "Eduardo").with(Person::setAge, 33).build(),
+                    GenericBuilder.of(Person::new).with(Person::setName, "Karolina").with(Person::setAge, 30).build(),
+                    GenericBuilder.of(Person::new).with(Person::setName, "Rafal").with(Person::setAge, 8).build(),
+                    GenericBuilder.of(Person::new).with(Person::setName, "Rafaela").with(Person::setAge, 18).build(),
+                    GenericBuilder.of(Person::new).with(Person::setName, "Thiago").with(Person::setAge, 25).build()
+            );
+        }
+
+        /**
+         * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
+         *
+         * @return Copy of default data mass of Persons
+         */
+        public List<Person> getPersons() {
+            final List<Person> copiedList = new ArrayList<>();
+            this.persons.stream().map(Person::copy).forEach(copiedList::add);
+
+            return copiedList;
+        }
+
+        /**
+         * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
+         *
+         * @return Copy of 1st element on default data mass of Persons
+         */
+        public List<Person> getOnePersonCopiedList() {
+            return Arrays.asList(GenericBuilder.of(Person::new).with(Person::setPerson, PERSON_LIST.getPersons().get(0)).build());
+        }
     }
 }
