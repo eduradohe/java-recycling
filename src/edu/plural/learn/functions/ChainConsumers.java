@@ -14,14 +14,6 @@ public class ChainConsumers {
 
     private static final PersonList PERSON_LIST = PersonList.getInstance();
 
-    private static Integer max(final Stream<Integer> agesStream) {
-        return agesStream.max(Comparator.naturalOrder()).orElse(0);
-    }
-
-    private static Integer sum(final Stream<Integer> agesStream) {
-        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
-    }
-
     private static void chainPersons() {
         final List<String> result = PERSON_LIST.getPersons().stream()
                 .filter(p -> (p.getAge() > 20 && p.getAge() < 30))
@@ -31,17 +23,19 @@ public class ChainConsumers {
         result.forEach(System.out::println);
 
         final List<Person> persons = PERSON_LIST.getPersons();
+        final List<Person> emptyPersons = Collections.emptyList();
         final List<Person> onePersonList = PERSON_LIST.getOnePersonCopiedList();
-        final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonList.PERSON_RAFAELA);
+        final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonList.PERSON_RAFAL);
         final List<Person> anotherLastPersonOnList = PERSON_LIST.getOnePersonCopiedList(88);
 
-        System.out.println("Sum of everyone's ages: " + sum(persons.stream().map(Person::getAge)));
-        System.out.println("Sum of empty Stream: " + sum(Stream.empty()));
-        System.out.println("Sum of 1 element Stream: " + sum(onePersonList.stream().map(Person::getAge)));
-        System.out.println("Max Age: " + max(persons.stream().map(Person::getAge)));
-        System.out.println("Max Age: " + max(Stream.empty()));
-        System.out.println("Max Age: " + max(anotherOnePersonList.stream().map(Person::getAge)));
-        System.out.println("Max Age: " + max(anotherLastPersonOnList.stream().map(Person::getAge)));
+        System.out.println("Sum of everyone's ages: " + new AgeCalculator(persons).sum());
+        System.out.println("Sum of empty Stream: " + new AgeCalculator(emptyPersons).sum());
+        System.out.println("Sum of 1 element Stream: " + new AgeCalculator(onePersonList).sum());
+        System.out.println("Max Age: " + new AgeCalculator(persons).max());
+        System.out.println("Max Age: " + new AgeCalculator(emptyPersons).max());
+        System.out.println("Max Age: " + new AgeCalculator(anotherOnePersonList).max());
+        System.out.println("Max Age: " + new AgeCalculator(anotherLastPersonOnList).max());
+        System.out.println("Min Age between 10 and 30: " + new AgeCalculator(persons).min(10, 30));
     }
 
     private static void chainSimpleStrings() {
@@ -68,5 +62,53 @@ public class ChainConsumers {
     public static void main(String[] args) {
         chainSimpleStrings();
         chainPersons();
+    }
+
+    /**
+     * Auxiliary class for calculate min, max and sum of ages given a list of Persons
+     */
+    private static class AgeCalculator {
+
+        private Stream<Integer> agesStream;
+
+        /**
+         * Instantiates an AgeCalculator object by mapping a Persons list into an Age stream
+         * @param persons List of persons to be mapped into an Age stream
+         */
+        private AgeCalculator(final List<Person> persons) {
+            this.agesStream = persons.stream().map(Person::getAge);
+        }
+
+        /**
+         * Calculates the lesser age from the stream within a range passed as parameters
+         *
+         * @param minAge minimum age allowed
+         * @param maxAge maximum age allowed
+         * @return The lesser age between <code>minAge</code> and <code>maxAge</code> parameters
+         */
+        private Integer min(final Integer minAge, final Integer maxAge) {
+
+            final Predicate<Integer> floor = a -> a >= minAge;
+            final Predicate<Integer> ceiling = a -> a <= maxAge;
+
+            return this.agesStream.filter(floor.and(ceiling)).min(Comparator.naturalOrder()).orElse(0);
+        }
+
+        /**
+         * Processes the maximum ages from within the age stream
+         * @return The greater age from the stream
+         */
+        private Integer max() {
+            return this.agesStream.max(Comparator.naturalOrder()).orElse(0);
+        }
+
+        /**
+         * Processes the sum of all ages in the stream of ages
+         *
+         * @return The sum of all ages
+         */
+        private  Integer sum() {
+            return this.agesStream.reduce(0, (age1, age2) -> age1 + age2);
+        }
     }
 }
