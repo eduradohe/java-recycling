@@ -1,7 +1,7 @@
 package edu.plural.learn.functions;
 
 import edu.plural.learn.model.Person;
-import edu.plural.learn.util.GenericBuilder;
+import edu.plural.learn.util.PersonList;
 
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -12,7 +12,11 @@ import java.util.stream.Stream;
 
 public class ChainConsumers {
 
-    private static final PersonList PERSON_LIST = new PersonList();
+    private static final PersonList PERSON_LIST = PersonList.getInstance();
+
+    private static Integer max(final Stream<Integer> agesStream) {
+        return agesStream.max(Comparator.naturalOrder()).orElse(0);
+    }
 
     private static Integer sum(final Stream<Integer> agesStream) {
         return agesStream.reduce(0, (age1, age2) -> age1 + age2);
@@ -26,9 +30,18 @@ public class ChainConsumers {
 
         result.forEach(System.out::println);
 
-        System.out.println("Sum of everyone's ages: " + sum(PERSON_LIST.getPersons().stream().map(Person::getAge)));
+        final List<Person> persons = PERSON_LIST.getPersons();
+        final List<Person> onePersonList = PERSON_LIST.getOnePersonCopiedList();
+        final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonList.PERSON_RAFAELA);
+        final List<Person> anotherLastPersonOnList = PERSON_LIST.getOnePersonCopiedList(88);
+
+        System.out.println("Sum of everyone's ages: " + sum(persons.stream().map(Person::getAge)));
         System.out.println("Sum of empty Stream: " + sum(Stream.empty()));
-        System.out.println("Sum of 1 element Stream: " + sum(PERSON_LIST.getOnePersonCopiedList().stream().map(Person::getAge)));
+        System.out.println("Sum of 1 element Stream: " + sum(onePersonList.stream().map(Person::getAge)));
+        System.out.println("Max Age: " + max(persons.stream().map(Person::getAge)));
+        System.out.println("Max Age: " + max(Stream.empty()));
+        System.out.println("Max Age: " + max(anotherOnePersonList.stream().map(Person::getAge)));
+        System.out.println("Max Age: " + max(anotherLastPersonOnList.stream().map(Person::getAge)));
     }
 
     private static void chainSimpleStrings() {
@@ -55,47 +68,5 @@ public class ChainConsumers {
     public static void main(String[] args) {
         chainSimpleStrings();
         chainPersons();
-    }
-
-    /**
-     * Encapsulates default person data mass and provides methods for accessing it as an immutable list, in which
-     * this method will provide copies of the elements on original list to be used and changed safely as the
-     * original list will be kept and available for generating new copies at will
-     */
-    private static class PersonList {
-
-        private final List<Person> persons;
-
-        PersonList() {
-            super();
-            this.persons = Arrays.asList(
-                    GenericBuilder.of(Person::new).with(Person::setName, "Eduardo").with(Person::setAge, 33).build(),
-                    GenericBuilder.of(Person::new).with(Person::setName, "Karolina").with(Person::setAge, 30).build(),
-                    GenericBuilder.of(Person::new).with(Person::setName, "Rafal").with(Person::setAge, 8).build(),
-                    GenericBuilder.of(Person::new).with(Person::setName, "Rafaela").with(Person::setAge, 18).build(),
-                    GenericBuilder.of(Person::new).with(Person::setName, "Thiago").with(Person::setAge, 25).build()
-            );
-        }
-
-        /**
-         * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
-         *
-         * @return Copy of default data mass of Persons
-         */
-        public List<Person> getPersons() {
-            final List<Person> copiedList = new ArrayList<>();
-            this.persons.stream().map(Person::copy).forEach(copiedList::add);
-
-            return copiedList;
-        }
-
-        /**
-         * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
-         *
-         * @return Copy of 1st element on default data mass of Persons
-         */
-        public List<Person> getOnePersonCopiedList() {
-            return Arrays.asList(GenericBuilder.of(Person::new).with(Person::setPerson, PERSON_LIST.getPersons().get(0)).build());
-        }
     }
 }
