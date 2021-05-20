@@ -24,18 +24,7 @@ public class ChainConsumers {
         return Arrays.asList(GenericBuilder.of(Person::new).with(Person::setPerson, PERSONS.get(0)).build());
     }
 
-    private static Integer sumOneElement() {
-        final Stream<Integer> agesStream = getOnePersonCopiedList().stream().map(Person::getAge);
-        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
-    }
-
-    private static Integer sumEmpty() {
-        final Stream<Integer> agesStream = Stream.empty();
-        return agesStream.reduce(0, (age1, age2) -> age1 + age2);
-    }
-
-    private static Integer sumAges() {
-        final Stream<Integer> agesStream = PERSONS.stream().map(Person::getAge);
+    private static Integer sum(final Stream<Integer> agesStream) {
         return agesStream.reduce(0, (age1, age2) -> age1 + age2);
     }
 
@@ -47,9 +36,9 @@ public class ChainConsumers {
 
         result.forEach(System.out::println);
 
-        System.out.println("Sum of everyone's ages: " + sumAges());
-        System.out.println("Sum of empty Stream: " + sumEmpty());
-        System.out.println("Sum of 1 element Stream: " + sumOneElement());
+        System.out.println("Sum of everyone's ages: " + sum(PERSONS.stream().map(Person::getAge)));
+        System.out.println("Sum of empty Stream: " + sum(Stream.empty()));
+        System.out.println("Sum of 1 element Stream: " + sum(getOnePersonCopiedList().stream().map(Person::getAge)));
     }
 
     private static void chainSimpleStrings() {
