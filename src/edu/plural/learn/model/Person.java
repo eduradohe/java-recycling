@@ -45,6 +45,27 @@ public class Person {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person)) return false;
+
+        Person person = (Person) o;
+
+        if (getName() != null ? !getName().equals(person.getName()) : person.getName() != null){
+            return false;
+        }
+
+        return (getAge() == null || person.getAge() == null) ? true : getAge().equals(person.getAge());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getName() != null ? getName().hashCode() : 0;
+        result = 31 * result + (getAge() != null ? getAge().hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Person{" +
                 "name='" + name + '\'' +
