@@ -1,5 +1,7 @@
 package edu.plural.learn.model;
 
+import edu.plural.learn.util.GenericBuilder;
+
 public class Person {
 
     private String name;
@@ -32,6 +34,14 @@ public class Person {
     public void setPerson(final Person person) {
         this.setName(person.getName());
         this.setAge(person.getAge());
+    }
+
+    /**
+     * Copies this object into a new instance
+     * @return this copied into a new instance
+     */
+    public Person copy() {
+        return GenericBuilder.of(Person::new).with(Person::setPerson, this).build();
     }
 
     @Override
