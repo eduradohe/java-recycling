@@ -25,6 +25,15 @@ public class Person {
         return age;
     }
 
+    /**
+     * For copy purpose
+     * @param person Person to be copied
+     */
+    public void setPerson(final Person person) {
+        this.setName(person.getName());
+        this.setAge(person.getAge());
+    }
+
     @Override
     public String toString() {
         return "Person{" +
