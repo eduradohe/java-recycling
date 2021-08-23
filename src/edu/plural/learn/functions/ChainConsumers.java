@@ -2,6 +2,7 @@ package edu.plural.learn.functions;
 
 import edu.plural.learn.model.Person;
 import edu.plural.learn.util.PersonList;
+import edu.plural.learn.util.StringUtils;
 
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -31,11 +32,17 @@ public class ChainConsumers {
         System.out.println("Sum of everyone's ages: " + new AgeCalculator(persons).sum());
         System.out.println("Sum of empty Stream: " + new AgeCalculator(emptyPersons).sum());
         System.out.println("Sum of 1 element Stream: " + new AgeCalculator(onePersonList).sum());
-        System.out.println("Max Age: " + new AgeCalculator(persons).max());
+        System.out.println("Greater Age: " + new AgeCalculator(persons).max());
         System.out.println("Max Age: " + new AgeCalculator(emptyPersons).max());
         System.out.println("Max Age: " + new AgeCalculator(anotherOnePersonList).max());
         System.out.println("Max Age: " + new AgeCalculator(anotherLastPersonOnList).max());
+        System.out.println("Lesser age: " + new AgeCalculator(persons).min());
         System.out.println("Min Age between 10 and 30: " + new AgeCalculator(persons).min(10, 30));
+        System.out.println("Min Age below 10: " + new AgeCalculator(persons).minBelow(10));
+        System.out.println("Min Age above 30: " + new AgeCalculator(persons).minAbove(30));
+        System.out.println("Max Age between 10 and 30: " + new AgeCalculator(persons).max(10, 30));
+        System.out.println("Max Age above 33: " + new AgeCalculator(persons).maxAbove(33));
+        System.out.println("Max Age below 30: " + new AgeCalculator(persons).maxBelow(30));
     }
 
     private static void chainSimpleStrings() {
@@ -80,6 +87,34 @@ public class ChainConsumers {
         }
 
         /**
+         * Processes the greater age from within the age stream
+         * @return The greater age from the stream
+         */
+        private Integer min() {
+            return this.min(null, null);
+        }
+
+        /**
+         * Calculates the lesser age from the stream above the passed parameters
+         *
+         * @param minAge minimum age allowed
+         * @return The lesser age above <code>minAge</code> parameters
+         */
+        private Integer minAbove(final Integer minAge) {
+            return this.min(minAge, null);
+        }
+
+        /**
+         * Calculates the lesser age from the stream below the passed parameters
+         *
+         * @param maxAge maximum age allowed
+         * @return The lesser age above <code>maxAge</code> parameters
+         */
+        private Integer minBelow(final Integer maxAge) {
+            return this.min(null, maxAge);
+        }
+
+        /**
          * Calculates the lesser age from the stream within a range passed as parameters
          *
          * @param minAge minimum age allowed
@@ -88,18 +123,66 @@ public class ChainConsumers {
          */
         private Integer min(final Integer minAge, final Integer maxAge) {
 
-            final Predicate<Integer> floor = a -> a >= minAge;
-            final Predicate<Integer> ceiling = a -> a <= maxAge;
+            final Predicate<Integer> floor = a -> minAge != null ? a > minAge : Boolean.TRUE;
+            final Predicate<Integer> ceiling = a -> maxAge != null ? a < maxAge : Boolean.TRUE;
 
-            return this.agesStream.filter(floor.and(ceiling)).min(Comparator.naturalOrder()).orElse(0);
+            try {
+                return this.agesStream.filter(floor.and(ceiling)).min(Comparator.naturalOrder()).orElseThrow(IllegalArgumentException::new);
+            } catch(IllegalArgumentException e) {
+                System.out.print(e);
+                System.out.println(": no age found within reach (" + StringUtils.toString(minAge) + " and " + StringUtils.toString(maxAge) + ")");
+                return 0;
+            }
+
         }
 
         /**
-         * Processes the maximum ages from within the age stream
+         * Processes the maximum age from within the age stream
          * @return The greater age from the stream
          */
         private Integer max() {
-            return this.agesStream.max(Comparator.naturalOrder()).orElse(0);
+            return this.max(null, null);
+        }
+
+        /**
+         * Calculates the greater age from the stream above the passed parameters
+         *
+         * @param minAge minimum age allowed
+         * @return The greater age above <code>minAge</code> parameters
+         */
+        private Integer maxAbove(final Integer minAge) {
+            return this.max(minAge, null);
+        }
+
+        /**
+         * Calculates the greater age from the stream below the passed parameters
+         *
+         * @param maxAge minimum age allowed
+         * @return The greater age below <code>maxAge</code> parameters
+         */
+        private Integer maxBelow(final Integer maxAge) {
+            return this.max(null, maxAge);
+        }
+
+        /**
+         * Calculates the greater age from the stream within a range passed as parameters
+         *
+         * @param minAge minimum age allowed
+         * @param maxAge maximum age allowed
+         * @return The greater age between <code>minAge</code> and <code>maxAge</code> parameters
+         */
+        private Integer max(final Integer minAge, final Integer maxAge) {
+
+            final Predicate<Integer> floor = a -> minAge != null ? a > minAge : Boolean.TRUE;
+            final Predicate<Integer> ceiling = a -> maxAge != null ? a < maxAge : Boolean.TRUE;
+
+            try {
+                return this.agesStream.filter(floor.and(ceiling)).max(Comparator.naturalOrder()).orElseThrow(IllegalArgumentException::new);
+            } catch(IllegalArgumentException e) {
+                System.out.print(e);
+                System.out.println(": no age found within reach (" + StringUtils.toString(minAge) + " and " + StringUtils.toString(maxAge) + ")");
+                return 0;
+            }
         }
 
         /**

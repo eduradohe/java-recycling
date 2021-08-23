@@ -4,6 +4,10 @@ import java.util.Optional;
 
 public class StringUtils {
 
+    public static String toString( final Object o ) {
+        return o == null ? "(value not provided)" : o.toString();
+    }
+
     public static boolean isNotNull( final String string ) {
         return !isNull(string);
     }
