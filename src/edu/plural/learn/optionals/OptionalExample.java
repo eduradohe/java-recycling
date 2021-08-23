@@ -3,71 +3,86 @@ package edu.plural.learn.optionals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class OptionalExample {
 
-    private static Optional<Integer> maxOnOptionalEmptyList() {
+    private static void maxOnOptionalEmptyList(final List result) {
+
+        result.add("Expects Optional.empty:");
+        
         final List<Integer> list = Arrays.asList();
-        return list.stream().max(Integer::max);
+        result.add(list.stream().max(Integer::max));
     }
 
-    private static Optional<Integer> maxOnOptionalNegativeElementsList() {
+    private static void maxOnOptionalNegativeElementsList(final List result) {
+
+        result.add("Expects Optional[-10]:");
+        
         final List<Integer> list = Arrays.asList(-10);
-        return list.stream().max(Integer::max);
+        result.add(list.stream().max(Integer::max));
     }
 
-    private static Optional<Integer> maxOnOptionalPositiveElementsList() {
+    private static void maxOnOptionalPositiveElementsList(final List result) {
+
+        result.add("Expects Optional[10]:");
+        
         final List<Integer> list = Arrays.asList(10);
-        return list.stream().max(Integer::max);
+        result.add(list.stream().max(Integer::max));
     }
 
-    private static Integer maxOnNegativeAndPositiveElementsList() {
+    private static void maxOnNegativeAndPositiveElementsList(final List result) {
+
+        result.add("Expects 20:");
+        
         final List<Integer> list = Arrays.asList(-10, 20);
-        return list.stream().reduce(0, Integer::max);
+        result.add(list.stream().reduce(0, Integer::max));
     }
 
-    private static Integer maxOnNegativeElementsList() {
+    private static void maxOnNegativeElementsList(final List result) {
+
+        result.add("Expects 0:");
+        
         final List<Integer> list = Arrays.asList(-10, -20);
-        return list.stream().reduce(0, Integer::max);
+        result.add(list.stream().reduce(0, Integer::max));
     }
 
-    private static Integer maxOnTwoElementsList() {
+    private static void maxOnTwoElementsList(final List result) {
+
+        result.add("Expects 20:");
+        
         final List<Integer> list = Arrays.asList(10, 20);
-        return list.stream().reduce(0, Integer::max);
+        result.add(list.stream().reduce(0, Integer::max));
     }
 
-    private static Integer maxOnOneElementList() {
+    private static void maxOnOneElementList(final List result) {
+
+        result.add("Expects 10:");
+        
         final List<Integer> list = Arrays.asList(10);
-        return list.stream().reduce(0, Integer::max);
+        result.add(list.stream().reduce(0, Integer::max));
     }
 
-    private static Integer maxOnEmptyList() {
+    private static void maxOnEmptyList(final List result) {
+
+        result.add("Expects 0:");
+        
         final List<Integer> list = Arrays.asList();
-        return list.stream().reduce(0, Integer::max);
+        result.add(list.stream().reduce(0, Integer::max));
     }
 
     public static void main(String[] args) {
 
-        final List objects = new ArrayList();
+        final List result = new ArrayList<>();
+        
+        maxOnEmptyList(result);
+        maxOnOneElementList(result);
+        maxOnTwoElementsList(result);
+        maxOnNegativeElementsList(result);
+        maxOnNegativeAndPositiveElementsList(result);
+        maxOnOptionalPositiveElementsList(result);
+        maxOnOptionalNegativeElementsList(result);
+        maxOnOptionalEmptyList(result);
 
-        objects.add("Expects 0:");
-        objects.add(maxOnEmptyList());
-        objects.add("Expects 10:");
-        objects.add(maxOnOneElementList());
-        objects.add("Expects 20:");
-        objects.add(maxOnTwoElementsList());
-        objects.add("Expects 0:");
-        objects.add(maxOnNegativeElementsList());
-        objects.add("Expects 20:");
-        objects.add(maxOnNegativeAndPositiveElementsList());
-        objects.add("Expects Optional[10]:");
-        objects.add(maxOnOptionalPositiveElementsList());
-        objects.add("Expects Optional[-10]:");
-        objects.add(maxOnOptionalNegativeElementsList());
-        objects.add("Expects Optional.empty:");
-        objects.add(maxOnOptionalEmptyList());
-
-        objects.forEach(System.out::println);
+        result.forEach(System.out::println);
     }
 }

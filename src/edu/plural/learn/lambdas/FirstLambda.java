@@ -1,11 +1,14 @@
 package edu.plural.learn.lambdas;
 
+import edu.plural.learn.util.StringUtils;
+
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Scanner;
 
 public class FirstLambda {
 
-    private final static String DIR_NAME = "C:/Program Files/Java/jre1.8.0_291/lib";
+    private final static String DIR_NAME = "C:/Program Files/Java/jre1.8.0_301/lib";
     private final static String EXTENSION_JAR = ".jar";
     private final static String EXTENSION_PROPERTIES = ".properties";
 
@@ -34,11 +37,28 @@ public class FirstLambda {
         }
     }
 
-    public static void main(String[] args) {
-        FileFilter filter = fetchFilterWithLambda();
-        printFileNames(filter, DIR_NAME);
+    private static String chooseFolder() {
 
+        final Scanner s = new Scanner(System.in);
+
+        System.out.println("(press enter for default: " + DIR_NAME + ")");
+        System.out.println("Provide a folder: ");
+
+        final String providedFolder = s.nextLine();
+
+        return StringUtils.trimmedIsEmpty(providedFolder) ? DIR_NAME : providedFolder;
+    }
+
+    public static void main(String[] args) {
+
+        final String chosenFolder =  chooseFolder();
+
+        System.out.println("All JAR files in " + chosenFolder + ":");
+        FileFilter filter = fetchFilterWithLambda();
+        printFileNames(filter, chosenFolder);
+
+        System.out.println("\nAll Properties files in " + chosenFolder + ":");
         filter = fetchFilterWithoutLambda();
-        printFileNames(filter, DIR_NAME);
+        printFileNames(filter, chosenFolder);
     }
 }
