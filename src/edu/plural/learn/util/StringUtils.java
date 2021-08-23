@@ -13,7 +13,7 @@ public class StringUtils {
     }
 
     public static String trim( final String string ) {
-        return isNotNull(string) ? string.trim() : Optional.of(string).orElse(new String());
+        return isNotNull(string) ? string.trim() : Optional.ofNullable(string).orElse(new String());
     }
 
     public static boolean isEmpty( final String string ) {

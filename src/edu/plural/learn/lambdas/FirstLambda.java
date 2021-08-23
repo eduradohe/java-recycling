@@ -4,7 +4,8 @@ import edu.plural.learn.util.StringUtils;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class FirstLambda {
 
@@ -30,11 +31,7 @@ public class FirstLambda {
         final File dir = new File(dirName);
         final File[] files = dir.listFiles(filter);
 
-        if ( files != null && files.length > 0 ) {
-            for ( int i = 0; i < files.length; i++ ) {
-                System.out.println(files[i]);
-            }
-        }
+        Stream.of(Optional.ofNullable(files).orElse(new File[0])).forEach(System.out::println);
     }
 
     private static String chooseFolder() {
