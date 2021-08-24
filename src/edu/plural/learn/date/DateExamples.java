@@ -31,6 +31,18 @@ public class DateExamples {
         persons.stream().forEach(personAgeConsumer());
     }
 
+    private static String getChronoUnit(final Period period, final ChronoUnit chronoUnit) {
+
+       final Long time = period.get(chronoUnit);
+
+       final boolean removePlural = (time <= 1);
+
+       String timeUnit = chronoUnit.name().toLowerCase();
+       if (removePlural) timeUnit = timeUnit.replace("s", "");
+
+       return time + " " + timeUnit;
+    }
+
     private static Consumer<Person> personAgeConsumer() {
         return p -> {
             final LocalDate now = LocalDate.now();
@@ -41,7 +53,10 @@ public class DateExamples {
                     :
                     " (" + p.getNickname() + ")";
 
-            System.out.println(p.getName() + nicknameToAdd + " was born " + period.get(ChronoUnit.YEARS) + " years ago");
+            System.out.println(p.getName() + nicknameToAdd + " was born " +
+                    getChronoUnit(period, ChronoUnit.YEARS) + ", " +
+                    getChronoUnit(period, ChronoUnit.MONTHS) + ", and " +
+                    getChronoUnit(period, ChronoUnit.DAYS) + " ago" );
         };
     }
 
