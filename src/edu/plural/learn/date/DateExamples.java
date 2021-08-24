@@ -31,22 +31,48 @@ public class DateExamples {
         persons.stream().forEach(personAgeConsumer());
     }
 
-    private static String getChronoUnit(final Period period, final ChronoUnit chronoUnit) {
+    private static String getTimeUnit( final Long time, final ChronoUnit chronoUnit ) {
+        final boolean removePlural = (time <= 1);
+        String timeUnit = chronoUnit.name().toLowerCase();
+        if (removePlural) timeUnit = timeUnit.replace("s", "");
 
-       final Long time = period.get(chronoUnit);
+        return timeUnit;
+    }
 
-       final boolean removePlural = (time <= 1);
+    private static String getFormattedTime(final LocalDate localDate, final ChronoUnit chronoUnit, final Long time) {
 
-       String timeUnit = chronoUnit.name().toLowerCase();
-       if (removePlural) timeUnit = timeUnit.replace("s", "");
+        final StringBuilder formattedTimeBuilder = new StringBuilder();
+        final String timeUnit = getTimeUnit(time, chronoUnit);
 
-       return time + " " + timeUnit;
+        formattedTimeBuilder.append(time);
+        formattedTimeBuilder.append(" ");
+        formattedTimeBuilder.append(timeUnit);
+
+        if ( ChronoUnit.YEARS.equals(chronoUnit) ) {
+            return formattedTimeBuilder.toString();
+        }
+
+        final Long timeInUnit = localDate.until(LocalDate.now(), chronoUnit);
+        final String subTimeUnit = getTimeUnit(timeInUnit, chronoUnit);
+
+        formattedTimeBuilder.append(" [");
+        formattedTimeBuilder.append(timeInUnit);
+        formattedTimeBuilder.append(" ");
+        formattedTimeBuilder.append(subTimeUnit);
+        formattedTimeBuilder.append("]");
+
+        return formattedTimeBuilder.toString();
+    }
+
+    private static String getChronoUnit(final LocalDate localDate, final ChronoUnit chronoUnit) {
+        final Period period = localDate.until(LocalDate.now());
+        final Long time = period.get(chronoUnit);
+        return getFormattedTime(localDate, chronoUnit, time);
     }
 
     private static Consumer<Person> personAgeConsumer() {
         return p -> {
             final LocalDate now = LocalDate.now();
-            final Period period = p.getBirthday().until(now);
 
             final String nicknameToAdd = StringUtils.trimmedIsEmpty(p.getNickname()) ?
                     ""
@@ -54,9 +80,9 @@ public class DateExamples {
                     " (" + p.getNickname() + ")";
 
             System.out.println(p.getName() + nicknameToAdd + " was born " +
-                    getChronoUnit(period, ChronoUnit.YEARS) + ", " +
-                    getChronoUnit(period, ChronoUnit.MONTHS) + ", and " +
-                    getChronoUnit(period, ChronoUnit.DAYS) + " ago" );
+                    getChronoUnit(p.getBirthday(), ChronoUnit.YEARS) + ", " +
+                    getChronoUnit(p.getBirthday(), ChronoUnit.MONTHS) + ", and " +
+                    getChronoUnit(p.getBirthday(), ChronoUnit.DAYS) + " ago" );
         };
     }
 
