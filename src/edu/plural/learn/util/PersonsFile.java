@@ -5,6 +5,7 @@ import edu.plural.learn.model.Person;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,34 +32,37 @@ public class PersonsFile {
         this.persons = stream.map(this.mapper()).collect(Collectors.toList());
     }
 
+    /**
+     * Builds a Function mapper to map from a String containing "<Name>,<DD> <MM> <YYY>" to a Person
+     * @return The mapper containing the instructions on how to map from the string to the desired object
+     */
     private Function<String, Person> mapper() {
         return row -> {
 
             final String[] fields = row.split(",");
+
             final String name = fields[0];
             final String birthday = fields[1];
 
             final String[] dateFields = birthday.split(" ");
 
-            return GenericBuilder
+            final Integer day = Integer.valueOf(dateFields[0]);
+            final Month month = Month.of(Integer.valueOf(dateFields[1]));
+            final Integer year = Integer.valueOf(dateFields[2]);
+
+            final Person person = GenericBuilder
                     .of(Person::new)
                     .with(Person::setName, name)
-                    .with(Person::setBirthday,
-                            LocalDate.of(
-                                    Integer.valueOf(dateFields[2]),
-                                    Integer.valueOf(dateFields[1]),
-                                    Integer.valueOf(dateFields[0])
-                            )
-                    )
+                    .with(Person::setBirthday, LocalDate.of(year, month,day))
                     .build();
+
+            return person;
         };
     }
 
     private Stream<String> readFile() {
         final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        PersonsFile.class.getResourceAsStream(FILE_PATH)
-                )
+                new InputStreamReader(PersonsFile.class.getResourceAsStream(FILE_PATH))
         );
 
         return reader.lines();
