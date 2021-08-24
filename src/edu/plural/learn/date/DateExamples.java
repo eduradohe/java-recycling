@@ -6,6 +6,8 @@ import edu.plural.learn.util.StringUtils;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,10 +19,10 @@ public class DateExamples {
 
         final long years = birthDate.until(now, ChronoUnit.YEARS);
 
-        final Instant instant = birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        final Calendar cal = GregorianCalendar.from(birthDate.atStartOfDay(ZoneId.systemDefault()));
 
-        System.out.printf("Shakespeare birth date is %1$tm %1$te,%1$tY\n", instant.toEpochMilli());
-        System.out.printf("It's been %1$d years since Shakespeare has been born\n", years);
+        System.out.printf("Shakespeare birth date is %1$tm %1$te,%1$tY\n", cal);
+        System.out.printf("It's been %1$d years since Shakespeare has been born\n\n", years);
     }
 
     private static void tellAgePersonsFile() {
