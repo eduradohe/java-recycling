@@ -2,34 +2,66 @@ package edu.plural.learn.util;
 
 import edu.plural.learn.model.Person;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Encapsulates default person data mass and provides methods for accessing it as an immutable list, in which
  * this method will provide copies of the elements on original list to be used and changed safely as the
  * original list will be kept and available for generating new copies at will
  */
-public class PersonList {
+public class PersonsFile {
 
-    public static final String PERSON_EDUARDO = "Eduardo";
-    public static final String PERSON_KAROLINA = "Karolina";
     public static final String PERSON_RAFAL = "Rafal";
-    public static final String PERSON_RAFAELA = "Rafaela";
-    public static final String PERSON_THIAGO = "Thiago";
 
-    private static PersonList instance;
+    private static final String FILE_PATH = "persons.csv";
+
+    private static PersonsFile instance;
 
     private final List<Person> persons;
 
-    private PersonList() {
+    private PersonsFile() {
         super();
-        this.persons = Arrays.asList(
-                GenericBuilder.of(Person::new).with(Person::setName, PERSON_EDUARDO).with(Person::setAge, 33).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, PERSON_KAROLINA).with(Person::setAge, 30).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, PERSON_RAFAL).with(Person::setAge, 8).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, PERSON_RAFAELA).with(Person::setAge, 18).build(),
-                GenericBuilder.of(Person::new).with(Person::setName, PERSON_THIAGO).with(Person::setAge, 25).build()
+        final Stream<String> stream = this.readFile();
+        this.persons = stream.map(this.mapper()).collect(Collectors.toList());
+    }
+
+    private Function<String, Person> mapper() {
+        return row -> {
+
+            final String[] fields = row.split(",");
+            final String name = fields[0];
+            final String birthday = fields[1];
+
+            final String[] dateFields = birthday.split(" ");
+
+            return GenericBuilder
+                    .of(Person::new)
+                    .with(Person::setName, name)
+                    .with(Person::setBirthday,
+                            LocalDate.of(
+                                    Integer.valueOf(dateFields[2]),
+                                    Integer.valueOf(dateFields[1]),
+                                    Integer.valueOf(dateFields[0])
+                            )
+                    )
+                    .build();
+        };
+    }
+
+    private Stream<String> readFile() {
+        final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        PersonsFile.class.getResourceAsStream(FILE_PATH)
+                )
         );
+
+        return reader.lines();
     }
 
     /**
@@ -37,11 +69,11 @@ public class PersonList {
      *
      * @return the instance of singleton PersonList
      */
-    public static PersonList getInstance() {
+    public static PersonsFile getInstance() {
         if (instance == null) {
-            synchronized(PersonList.class) {
+            synchronized(PersonsFile.class) {
                 if (instance == null) {
-                    instance = new PersonList();
+                    instance = new PersonsFile();
                 }
             }
         }

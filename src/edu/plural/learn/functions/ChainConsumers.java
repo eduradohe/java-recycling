@@ -1,32 +1,29 @@
 package edu.plural.learn.functions;
 
 import edu.plural.learn.model.Person;
-import edu.plural.learn.util.PersonList;
-import edu.plural.learn.util.StringUtils;
+import edu.plural.learn.util.PersonsFile;
 
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChainConsumers {
 
-    private static final PersonList PERSON_LIST = PersonList.getInstance();
+    private static final PersonsFile PERSON_LIST = PersonsFile.getInstance();
 
     private static void chainPersons() {
-        final List<String> result = PERSON_LIST.getPersons().stream()
-                .filter(p -> (p.getAge() > 20 && p.getAge() < 30))
-                .map(p -> "[" + p.getName() + ", " + p.getAge().toString() + "]")
-                .collect(Collectors.toList());
 
-        result.forEach(System.out::println);
+        groupByAge();
+        flatMapWithCollectors();
 
         final List<Person> persons = PERSON_LIST.getPersons();
         final List<Person> emptyPersons = Collections.emptyList();
         final List<Person> onePersonList = PERSON_LIST.getOnePersonCopiedList();
-        final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonList.PERSON_RAFAL);
+        final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonsFile.PERSON_RAFAL);
         final List<Person> anotherLastPersonOnList = PERSON_LIST.getOnePersonCopiedList(88);
 
         System.out.println("Sum of everyone's ages: " + new AgeCalculator(persons).sum());
@@ -43,6 +40,47 @@ public class ChainConsumers {
         System.out.println("Max Age between 10 and 30: " + new AgeCalculator(persons).max(10, 30));
         System.out.println("Max Age above 33: " + new AgeCalculator(persons).maxAbove(33));
         System.out.println("Max Age below 30: " + new AgeCalculator(persons).maxBelow(30));
+    }
+
+    private static void groupByAge() {
+        final List<Person> persons = PERSON_LIST.getPersons();
+
+        final Map<Integer, Long> ageGroupBy = persons.stream()
+                .filter(p -> p.getAge() > 10 && p.getAge() < 26)
+                .collect(
+                        Collectors.groupingBy(
+                                Person::getAge,
+                                Collectors.counting()
+                        )
+                );
+        ageGroupBy.entrySet().stream().map(m -> "Number of persons at age " + m.getKey() + ": " + m.getValue()).sorted().forEach(System.out::println);
+    }
+
+    private static void flatMapWithCollectors(){
+
+        final List<Person> persons = PERSON_LIST.getPersons();
+
+        final List<String> personsBetween20And30 = persons.stream()
+                .filter(p -> (p.getAge() > 20 && p.getAge() < 30 || p.getAge() == 34))
+                .map(Person::toString)
+                .collect(Collectors.toList());
+
+        final Predicate<Person> greaterThan = p -> p.getAge() > 29;
+        final Predicate<Person> lesserThan = p -> p.getAge() < 35;
+
+        final List<String> eduKaro = persons.stream()
+                .filter(greaterThan.and(lesserThan))
+                .map(Person::getName)
+                .collect(Collectors.toList());
+
+        final Function<List<String>, Stream<String>> flatMapper = l -> l.stream();
+
+        final List<List<String>> allPersonListedBefore = new ArrayList();
+        allPersonListedBefore.add(personsBetween20And30);
+        allPersonListedBefore.add(eduKaro);
+
+        final String all = allPersonListedBefore.stream().flatMap(flatMapper).collect(Collectors.joining(", "));
+        System.out.println(all);
     }
 
     private static void chainSimpleStrings() {
@@ -126,14 +164,7 @@ public class ChainConsumers {
             final Predicate<Integer> floor = a -> minAge != null ? a > minAge : Boolean.TRUE;
             final Predicate<Integer> ceiling = a -> maxAge != null ? a < maxAge : Boolean.TRUE;
 
-            try {
-                return this.agesStream.filter(floor.and(ceiling)).min(Comparator.naturalOrder()).orElseThrow(IllegalArgumentException::new);
-            } catch(IllegalArgumentException e) {
-                System.out.print(e);
-                System.out.println(": no age found within reach (" + StringUtils.toString(minAge) + " and " + StringUtils.toString(maxAge) + ")");
-                return 0;
-            }
-
+            return this.agesStream.filter(floor.and(ceiling)).min(Comparator.naturalOrder()).orElse(0);
         }
 
         /**
@@ -176,13 +207,7 @@ public class ChainConsumers {
             final Predicate<Integer> floor = a -> minAge != null ? a > minAge : Boolean.TRUE;
             final Predicate<Integer> ceiling = a -> maxAge != null ? a < maxAge : Boolean.TRUE;
 
-            try {
-                return this.agesStream.filter(floor.and(ceiling)).max(Comparator.naturalOrder()).orElseThrow(IllegalArgumentException::new);
-            } catch(IllegalArgumentException e) {
-                System.out.print(e);
-                System.out.println(": no age found within reach (" + StringUtils.toString(minAge) + " and " + StringUtils.toString(maxAge) + ")");
-                return 0;
-            }
+            return this.agesStream.filter(floor.and(ceiling)).max(Comparator.naturalOrder()).orElse(0);
         }
 
         /**

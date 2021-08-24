@@ -2,9 +2,13 @@ package edu.plural.learn.model;
 
 import edu.plural.learn.util.GenericBuilder;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 public class Person {
 
     private String name;
+    private LocalDate birthday;
     private Integer age;
 
     public Person() {
@@ -19,12 +23,23 @@ public class Person {
         return name;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
     public Integer getAge() {
         return age;
+    }
+
+    public void setAge( Integer age) {
+        if (this.age == null) {
+            this.age = age;
+        }
+    }
+
+    public void setBirthday( LocalDate birthday ) {
+        this.birthday = birthday;
+        this.age = Long.valueOf(this.birthday.until(LocalDate.now()).get(ChronoUnit.YEARS)).intValue();
+    }
+
+    public LocalDate getBirthday() {
+        return this.birthday;
     }
 
     /**
@@ -51,7 +66,7 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (getName() != null ? !getName().equals(person.getName()) : person.getName() != null){
+        if (getName() != null ? !getName().equals(person.getName()) : person.getName() != null) {
             return false;
         }
 
