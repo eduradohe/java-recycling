@@ -43,6 +43,7 @@ public class PersonsFile {
 
             final String name = fields[0];
             final String birthday = fields[1];
+            final String nickname = fields.length > 2 ? fields[2] : null;
 
             final String[] dateFields = birthday.split(" ");
 
@@ -54,6 +55,7 @@ public class PersonsFile {
                     .of(Person::new)
                     .with(Person::setName, name)
                     .with(Person::setBirthday, LocalDate.of(year, month,day))
+                    .with(Person::setNickname, nickname)
                     .build();
 
             return person;

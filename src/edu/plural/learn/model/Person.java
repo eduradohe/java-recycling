@@ -3,6 +3,7 @@ package edu.plural.learn.model;
 import edu.plural.learn.util.GenericBuilder;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 
 public class Person {
@@ -10,9 +11,18 @@ public class Person {
     private String name;
     private LocalDate birthday;
     private Integer age;
+    private String nickname;
 
     public Person() {
         super();
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 
     public void setName(String name) {
@@ -49,6 +59,8 @@ public class Person {
     public void setPerson(final Person person) {
         this.setName(person.getName());
         this.setAge(person.getAge());
+        this.setBirthday(person.getBirthday());
+        this.setNickname(person.getNickname());
     }
 
     /**
@@ -85,6 +97,11 @@ public class Person {
         return "Person{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
+                ", birthday=" +
+                    birthday.get(ChronoField.DAY_OF_MONTH) + "-" +
+                    birthday.get(ChronoField.MONTH_OF_YEAR) + "-" +
+                    birthday.get(ChronoField.YEAR) +
+                ", nickname=" + nickname +
                 '}';
     }
 }
