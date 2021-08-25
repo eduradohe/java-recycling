@@ -4,13 +4,13 @@ import edu.plural.learn.model.Person;
 import edu.plural.learn.model.PersonGender;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Encapsulates default person data mass and provides methods for accessing it as an immutable list, in which
@@ -29,15 +29,21 @@ public class PersonsFile {
 
     private PersonsFile() {
         super();
-        final Stream<String> stream = this.readFile();
-        this.persons = stream.map(this.mapper()).collect(Collectors.toList());
+
+        final BufferedReader reader = this.getReader();
+        final Function<String, Person> fileToPersonMapper = this.getFileToPersonMapper();
+
+        this.persons = reader
+                .lines()
+                .map(fileToPersonMapper)
+                .collect(Collectors.toList());
     }
 
     /**
      * Builds a Function mapper to map from a String containing "<Name>,<DD> <MM> <YYY>" to a Person
      * @return The mapper containing the instructions on how to map from the string to the desired object
      */
-    private Function<String, Person> mapper() {
+    private Function<String, Person> getFileToPersonMapper() {
         return row -> {
 
             final String[] fields = row.split(",");
@@ -65,12 +71,10 @@ public class PersonsFile {
         };
     }
 
-    private Stream<String> readFile() {
-        final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(PersonsFile.class.getResourceAsStream(FILE_PATH))
-        );
-
-        return reader.lines();
+    private BufferedReader getReader() {
+        final InputStream fileInputStream = PersonsFile.class.getResourceAsStream(FILE_PATH);
+        final InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+        return new BufferedReader(inputStreamReader);
     }
 
     /**
