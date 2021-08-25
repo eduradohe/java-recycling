@@ -81,7 +81,7 @@ public class DateExamples {
                     :
                     " (" + p.getNickname() + ")";
 
-            System.out.println(p.getName() + nicknameToAdd + " was born " +
+            System.out.println(p.getName() + nicknameToAdd + ", " + p.getGender().getDescription() + ", was born " +
                     getChronoUnit(p.getBirthday(), ChronoUnit.YEARS) + ", " +
                     getChronoUnit(p.getBirthday(), ChronoUnit.MONTHS) + ", and " +
                     getChronoUnit(p.getBirthday(), ChronoUnit.DAYS) + " ago" );

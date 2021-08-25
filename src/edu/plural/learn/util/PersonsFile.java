@@ -1,6 +1,7 @@
 package edu.plural.learn.util;
 
 import edu.plural.learn.model.Person;
+import edu.plural.learn.model.PersonGender;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,7 +44,8 @@ public class PersonsFile {
 
             final String name = fields[0];
             final String birthday = fields[1];
-            final String nickname = fields.length > 2 ? fields[2] : null;
+            final PersonGender gender = PersonGender.of(Character.valueOf(fields[2].charAt(0)));
+            final String nickname = fields.length > 3 ? fields[3] : null;
 
             final String[] dateFields = birthday.split(" ");
 
@@ -56,6 +58,7 @@ public class PersonsFile {
                     .with(Person::setName, name)
                     .with(Person::setBirthday, LocalDate.of(year, month,day))
                     .with(Person::setNickname, nickname)
+                    .with(Person::setGender, gender)
                     .build();
 
             return person;

@@ -12,6 +12,7 @@ public class Person {
     private LocalDate birthday;
     private Integer age;
     private String nickname;
+    private PersonGender gender;
 
     public Person() {
         super();
@@ -31,6 +32,14 @@ public class Person {
 
     public String getName() {
         return name;
+    }
+
+    public void setGender(PersonGender gender) {
+        this.gender = gender;
+    }
+
+    public PersonGender getGender() {
+        return gender;
     }
 
     public Integer getAge() {
@@ -61,6 +70,7 @@ public class Person {
         this.setAge(person.getAge());
         this.setBirthday(person.getBirthday());
         this.setNickname(person.getNickname());
+        this.setGender(person.getGender());
     }
 
     /**
@@ -78,17 +88,19 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (getName() != null ? !getName().equals(person.getName()) : person.getName() != null) {
+        if (!getName().equals(person.getName())) return false;
+        if (!getBirthday().equals(person.getBirthday())) return false;
+        if (getNickname() != null ? !getNickname().equals(person.getNickname()) : person.getNickname() != null)
             return false;
-        }
-
-        return (getAge() == null || person.getAge() == null) ? true : getAge().equals(person.getAge());
+        return getGender() == person.getGender();
     }
 
     @Override
     public int hashCode() {
-        int result = getName() != null ? getName().hashCode() : 0;
-        result = 31 * result + (getAge() != null ? getAge().hashCode() : 0);
+        int result = getName().hashCode();
+        result = 31 * result + getBirthday().hashCode();
+        result = 31 * result + (getNickname() != null ? getNickname().hashCode() : 0);
+        result = 31 * result + getGender().hashCode();
         return result;
     }
 
@@ -102,6 +114,7 @@ public class Person {
                     birthday.get(ChronoField.MONTH_OF_YEAR) + "-" +
                     birthday.get(ChronoField.YEAR) +
                 ", nickname=" + nickname +
+                ", gender=" + gender.getDescription() +
                 '}';
     }
 }
