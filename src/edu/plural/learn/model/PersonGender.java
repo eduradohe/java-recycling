@@ -2,6 +2,9 @@ package edu.plural.learn.model;
 
 import java.util.Arrays;
 
+/**
+ * Person gender enumerator
+ */
 public enum PersonGender {
     FEMININE('F', "Feminine"),
     MASCULINE('M', "Masculine"),
@@ -23,6 +26,12 @@ public enum PersonGender {
         return description;
     }
 
+    /**
+     * Look up for a Person Gender of specified code
+     *
+     * @param code The code to look up
+     * @return The correspondent Person Gender
+     */
     public static PersonGender of(final Character code) {
         return Arrays.stream(PersonGender.values())
                 .filter(pg -> pg.getCode().equals(code))
@@ -30,6 +39,12 @@ public enum PersonGender {
                 .orElse(null);
     }
 
+    /**
+     * Look up for a Person Gender of specified description
+     *
+     * @param description The description to look up
+     * @return The correspondent Person Gender
+     */
     public static PersonGender of(final String description) {
         return Arrays.stream(PersonGender.values())
                 .filter(pg -> pg.getDescription().equals(description))

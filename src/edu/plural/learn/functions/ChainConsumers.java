@@ -26,20 +26,20 @@ public class ChainConsumers {
         final List<Person> anotherOnePersonList = PERSON_LIST.getOnePersonCopiedList(PersonsFile.PERSON_RAFAL);
         final List<Person> anotherLastPersonOnList = PERSON_LIST.getOnePersonCopiedList(88);
 
-        System.out.println("Sum of everyone's ages: " + new AgeCalculator(persons).sum());
-        System.out.println("Sum of empty Stream: " + new AgeCalculator(emptyPersons).sum());
-        System.out.println("Sum of 1 element Stream: " + new AgeCalculator(onePersonList).sum());
-        System.out.println("Greater Age: " + new AgeCalculator(persons).max());
-        System.out.println("Max Age: " + new AgeCalculator(emptyPersons).max());
-        System.out.println("Max Age: " + new AgeCalculator(anotherOnePersonList).max());
-        System.out.println("Max Age: " + new AgeCalculator(anotherLastPersonOnList).max());
-        System.out.println("Lesser age: " + new AgeCalculator(persons).min());
-        System.out.println("Min Age between 10 and 30: " + new AgeCalculator(persons).min(10, 30));
-        System.out.println("Min Age below 10: " + new AgeCalculator(persons).minBelow(10));
-        System.out.println("Min Age above 30: " + new AgeCalculator(persons).minAbove(30));
-        System.out.println("Max Age between 10 and 30: " + new AgeCalculator(persons).max(10, 30));
-        System.out.println("Max Age above 33: " + new AgeCalculator(persons).maxAbove(33));
-        System.out.println("Max Age below 30: " + new AgeCalculator(persons).maxBelow(30));
+        System.out.println("Sum of everyone's ages: " + new AgeAggregator(persons).sum());
+        System.out.println("Sum of empty Stream: " + new AgeAggregator(emptyPersons).sum());
+        System.out.println("Sum of 1 element Stream: " + new AgeAggregator(onePersonList).sum());
+        System.out.println("Greater Age: " + new AgeAggregator(persons).max());
+        System.out.println("Max Age: " + new AgeAggregator(emptyPersons).max());
+        System.out.println("Max Age: " + new AgeAggregator(anotherOnePersonList).max());
+        System.out.println("Max Age: " + new AgeAggregator(anotherLastPersonOnList).max());
+        System.out.println("Lesser age: " + new AgeAggregator(persons).min());
+        System.out.println("Min Age between 10 and 30: " + new AgeAggregator(persons).min(10, 30));
+        System.out.println("Min Age below 10: " + new AgeAggregator(persons).minBelow(10));
+        System.out.println("Min Age above 30: " + new AgeAggregator(persons).minAbove(30));
+        System.out.println("Max Age between 10 and 30: " + new AgeAggregator(persons).max(10, 30));
+        System.out.println("Max Age above 33: " + new AgeAggregator(persons).maxAbove(33));
+        System.out.println("Max Age below 30: " + new AgeAggregator(persons).maxBelow(30));
     }
 
     private static void groupByAge() {
@@ -110,17 +110,17 @@ public class ChainConsumers {
     }
 
     /**
-     * Auxiliary class for calculate min, max and sum of ages given a list of Persons
+     * Auxiliary class for looking up for min, max and sum of ages given a list of Persons
      */
-    private static class AgeCalculator {
+    private static class AgeAggregator {
 
         private Stream<Integer> agesStream;
 
         /**
-         * Instantiates an AgeCalculator object by mapping a Persons list into an Age stream
+         * Instantiates an AgeAggregator object by mapping a Persons list into an Age stream
          * @param persons List of persons to be mapped into an Age stream
          */
-        private AgeCalculator(final List<Person> persons) {
+        private AgeAggregator(final List<Person> persons) {
             this.agesStream = persons.stream().map(Person::getAge);
         }
 

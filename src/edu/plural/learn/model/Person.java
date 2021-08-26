@@ -10,7 +10,6 @@ public class Person {
 
     private String name;
     private LocalDate birthday;
-    private Integer age;
     private String nickname;
     private PersonGender gender;
 
@@ -43,18 +42,11 @@ public class Person {
     }
 
     public Integer getAge() {
-        return age;
-    }
-
-    public void setAge( Integer age) {
-        if (this.age == null) {
-            this.age = age;
-        }
+        return this.calculateAge();
     }
 
     public void setBirthday( LocalDate birthday ) {
         this.birthday = birthday;
-        this.age = Long.valueOf(this.birthday.until(LocalDate.now()).get(ChronoUnit.YEARS)).intValue();
     }
 
     public LocalDate getBirthday() {
@@ -67,7 +59,6 @@ public class Person {
      */
     public void setPerson(final Person person) {
         this.setName(person.getName());
-        this.setAge(person.getAge());
         this.setBirthday(person.getBirthday());
         this.setNickname(person.getNickname());
         this.setGender(person.getGender());
@@ -78,7 +69,23 @@ public class Person {
      * @return this copied into a new instance
      */
     public Person copy() {
-        return GenericBuilder.of(Person::new).with(Person::setPerson, this).build();
+        return GenericBuilder
+                .of(Person::new)
+                .with(Person::setPerson, this)
+                .build();
+    }
+
+    /**
+     * Calculates the current age measure by the difference in years from birthday until now.
+     * @return The difference in years from birthday until now.
+     */
+    private Integer calculateAge() {
+
+        final LocalDate now = LocalDate.now();
+
+        return Long.valueOf(
+                this.birthday.until(now).get(ChronoUnit.YEARS)
+        ).intValue();
     }
 
     @Override
@@ -108,7 +115,7 @@ public class Person {
     public String toString() {
         return "Person{" +
                 "name='" + name + '\'' +
-                ", age=" + age +
+                ", age=" + this.getAge() +
                 ", birthday=" +
                     birthday.get(ChronoField.DAY_OF_MONTH) + "-" +
                     birthday.get(ChronoField.MONTH_OF_YEAR) + "-" +
