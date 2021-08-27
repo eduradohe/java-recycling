@@ -4,6 +4,7 @@ import edu.plural.learn.model.Person;
 import edu.plural.learn.model.PersonGender;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
@@ -29,14 +30,78 @@ public class PersonsFile {
 
     private PersonsFile() {
         super();
+        this.persons = this.readFile();
+    }
 
-        final BufferedReader reader = this.getReader();
-        final Function<String, Person> fileToPersonMapper = this.getFileToPersonMapper();
+    /**
+     * Returns the instance of singleton PersonList
+     *
+     * @return the instance of singleton PersonList
+     */
+    public static PersonsFile getInstance() {
+        if (instance == null) {
+            synchronized(PersonsFile.class) {
+                if (instance == null) {
+                    instance = new PersonsFile();
+                }
+            }
+        }
 
-        this.persons = reader
-                .lines()
-                .map(fileToPersonMapper)
-                .collect(Collectors.toList());
+        return instance;
+    }
+
+    /**
+     * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
+     *
+     * This method brings a list of 1 person present at index 0.
+     *
+     * @return Copy of 1st element on default data mass of Persons
+     */
+    public List<Person> getOnePersonCopiedList() {
+        return this.getOnePersonCopiedList(0);
+    }
+
+    /**
+     * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
+     *
+     * @param position Position identifier in the list
+     * @return Copy of 1st element on default data mass of Persons
+     */
+    public List<Person> getOnePersonCopiedList( final Integer position ) {
+        return Collections.singletonList(
+                GenericBuilder
+                        .of(Person::new)
+                        .with(Person::setPerson, this.getPersons().get(restrainIndex(position)))
+                        .build()
+        );
+    }
+
+    /**
+     * Encapsulates person list ensuring original list will be kept unchanged if another method is changing it.
+     *
+     * This method brings a list of 1 person whose name equals the name passed as parameter.
+     *
+     * @param name Name of the Person to be searched
+     * @return Copy of person list containing element whose name equals the name passed as parameter
+     */
+    public List<Person> getOnePersonCopiedList( final String name ) {
+
+        final Person requiredPerson = GenericBuilder.of(Person::new).with(Person::setName, name).build();
+        final Integer position = this.persons.indexOf(requiredPerson);
+
+        return this.getOnePersonCopiedList(position);
+    }
+
+    /**
+     * Encapsulates list with all persons ensuring original list will be kept unchanged if another method is changing it.
+     *
+     * @return Copy of default data mass of Persons
+     */
+    public List<Person> getPersons() {
+        final List<Person> copiedList = new ArrayList<>();
+        this.persons.stream().map(Person::copy).forEach(copiedList::add);
+
+        return copiedList;
     }
 
     /**
@@ -71,6 +136,10 @@ public class PersonsFile {
         };
     }
 
+    /**
+     * Provides a reader for the CSV file containing the list of Person
+     * @return The CSV file reader
+     */
     private BufferedReader getReader() {
         final InputStream fileInputStream = PersonsFile.class.getResourceAsStream(FILE_PATH);
         final InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
@@ -78,59 +147,24 @@ public class PersonsFile {
     }
 
     /**
-     * Returns the instance of singleton PersonList
-     *
-     * @return the instance of singleton PersonList
+     * Reads the list of persons from the CSV file into a list
+     * @return The list formed from reading the CSV file
      */
-    public static PersonsFile getInstance() {
-        if (instance == null) {
-            synchronized(PersonsFile.class) {
-                if (instance == null) {
-                    instance = new PersonsFile();
-                }
-            }
+    private List<Person> readFile() {
+
+        final Function<String, Person> fileToPersonMapper = this.getFileToPersonMapper();
+        final List<Person> persons = new ArrayList<>();
+
+        try ( final BufferedReader reader = this.getReader() ) {
+            persons.addAll(reader
+                    .lines()
+                    .map(fileToPersonMapper)
+                    .collect(Collectors.toList()));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return instance;
-    }
-
-    /**
-     * Encapsulates list with all persons ensuring original list will be kept unchanged if another method is changing it.
-     *
-     * @return Copy of default data mass of Persons
-     */
-    public List<Person> getPersons() {
-        final List<Person> copiedList = new ArrayList<>();
-        this.persons.stream().map(Person::copy).forEach(copiedList::add);
-
-        return copiedList;
-    }
-
-    /**
-     * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
-     *
-     * This method brings a list of 1 person present at index 0.
-     *
-     * @return Copy of 1st element on default data mass of Persons
-     */
-    public List<Person> getOnePersonCopiedList() {
-        return this.getOnePersonCopiedList(0);
-    }
-
-    /**
-     * Encapsulates person list ensuring original list will be kept unchanged if another method is changing it.
-     *
-     * This method brings a list of 1 person whose name equals the name passed as parameter.
-     *
-     * @param name Name of the Person to be searched
-     * @return Copy of person list containing element whose name equals the name passed as parameter
-     */
-    public List<Person> getOnePersonCopiedList( final String name ) {
-
-        final Person requiredPerson = GenericBuilder.of(Person::new).with(Person::setName, name).build();
-        final Integer position = this.persons.indexOf(requiredPerson);
-
-        return this.getOnePersonCopiedList(position);
+        return persons;
     }
 
     /**
@@ -144,20 +178,5 @@ public class PersonsFile {
         Integer index = minIndexes.stream().max(Comparator.naturalOrder()).orElse(0);
         final List<Integer> maxIndexes = Arrays.asList(index, Integer.valueOf(this.persons.size() - 1));
         return maxIndexes.stream().min(Comparator.naturalOrder()).orElse(0);
-    }
-
-    /**
-     * Encapsulates persons list ensuring original list will be kept unchanged if another method is changing it.
-     *
-     * @param position Position identifier in the list
-     * @return Copy of 1st element on default data mass of Persons
-     */
-    public List<Person> getOnePersonCopiedList( final Integer position ) {
-        return Collections.singletonList(
-                GenericBuilder
-                        .of(Person::new)
-                        .with(Person::setPerson, this.getPersons().get(restrainIndex(position)))
-                        .build()
-        );
     }
 }
