@@ -11,7 +11,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Encapsulates default person data mass and provides methods for accessing it as an immutable list, in which
@@ -105,35 +106,33 @@ public class PersonsFile {
     }
 
     /**
-     * Builds a Function mapper to map from a String containing "<Name>,<DD> <MM> <YYY>" to a Person
-     * @return The mapper containing the instructions on how to map from the string to the desired object
+     * Maps a String containing "<Name>,<DD> <MM> <YYY>,<Gender>[,<Nickname>]" to a Person
+     * @param line The line to be converted into a Person object
+     * @return The converted Person object
      */
-    private Function<String, Person> getFileToPersonMapper() {
-        return row -> {
+    private Person mapLineToPerson(final String line) {
+        final String[] fields = line.split(",");
 
-            final String[] fields = row.split(",");
+        final String name = fields[0];
+        final String birthday = fields[1];
+        final PersonGender gender = PersonGender.of(Character.valueOf(fields[2].charAt(0)));
+        final String nickname = fields.length > 3 ? fields[3] : null;
 
-            final String name = fields[0];
-            final String birthday = fields[1];
-            final PersonGender gender = PersonGender.of(Character.valueOf(fields[2].charAt(0)));
-            final String nickname = fields.length > 3 ? fields[3] : null;
+        final String[] dateFields = birthday.split(" ");
 
-            final String[] dateFields = birthday.split(" ");
+        final Integer day = Integer.valueOf(dateFields[0]);
+        final Month month = Month.of(Integer.valueOf(dateFields[1]));
+        final Integer year = Integer.valueOf(dateFields[2]);
 
-            final Integer day = Integer.valueOf(dateFields[0]);
-            final Month month = Month.of(Integer.valueOf(dateFields[1]));
-            final Integer year = Integer.valueOf(dateFields[2]);
+        final Person person = GenericBuilder
+                .of(Person::new)
+                .with(Person::setName, name)
+                .with(Person::setBirthday, LocalDate.of(year, month,day))
+                .with(Person::setNickname, nickname)
+                .with(Person::setGender, gender)
+                .build();
 
-            final Person person = GenericBuilder
-                    .of(Person::new)
-                    .with(Person::setName, name)
-                    .with(Person::setBirthday, LocalDate.of(year, month,day))
-                    .with(Person::setNickname, nickname)
-                    .with(Person::setGender, gender)
-                    .build();
-
-            return person;
-        };
+        return person;
     }
 
     /**
@@ -148,23 +147,24 @@ public class PersonsFile {
 
     /**
      * Reads the list of persons from the CSV file into a list
-     * @return The list formed from reading the CSV file
+     * @return A unmodifiable list formed from reading the CSV file
      */
     private List<Person> readFile() {
 
-        final Function<String, Person> fileToPersonMapper = this.getFileToPersonMapper();
+        final Function<String, Person> lineToPerson = line -> this.mapLineToPerson(line);
         final List<Person> persons = new ArrayList<>();
 
         try ( final BufferedReader reader = this.getReader() ) {
-            persons.addAll(reader
-                    .lines()
-                    .map(fileToPersonMapper)
-                    .collect(Collectors.toList()));
+            persons.addAll(
+                    reader.lines()
+                            .map(lineToPerson)
+                            .collect(toList())
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return persons;
+        return Collections.unmodifiableList(persons);
     }
 
     /**
