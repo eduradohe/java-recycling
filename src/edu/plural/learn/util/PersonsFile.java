@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -31,7 +31,7 @@ public class PersonsFile {
 
     private PersonsFile() {
         super();
-        this.persons = this.readFile();
+        this.persons = Collections.unmodifiableList(readFile().collect(toList()));
     }
 
     /**
@@ -86,7 +86,6 @@ public class PersonsFile {
      * @return Copy of person list containing element whose name equals the name passed as parameter
      */
     public List<Person> getOnePersonCopiedList( final String name ) {
-
         final Person requiredPerson = GenericBuilder.of(Person::new).with(Person::setName, name).build();
         final Integer position = this.persons.indexOf(requiredPerson);
 
@@ -106,11 +105,26 @@ public class PersonsFile {
     }
 
     /**
-     * Maps a String containing "<Name>,<DD> <MM> <YYY>,<Gender>[,<Nickname>]" to a Person
+     * Converts a CSV file line into a Person stream
+     * @param line The line to be converted into a Person object
+     * @return The converted Person stream
+     */
+    private static Stream<Person> lineToPersonStream(final String line) {
+        try {
+            return Stream.of(personFrom(line));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return Stream.empty();
+    }
+
+    /**
+     * Provides a person object given a String containing "<Name>,<DD> <MM> <YYY>,<Gender>[,<Nickname>]"
      * @param line The line to be converted into a Person object
      * @return The converted Person object
      */
-    private Person mapLineToPerson(final String line) {
+    private static Person personFrom(final String line) {
         final String[] fields = line.split(",");
 
         final String name = fields[0];
@@ -139,7 +153,7 @@ public class PersonsFile {
      * Provides a reader for the CSV file containing the list of Person
      * @return The CSV file reader
      */
-    private BufferedReader getReader() {
+    private static BufferedReader getReader() {
         final InputStream fileInputStream = PersonsFile.class.getResourceAsStream(FILE_PATH);
         final InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
         return new BufferedReader(inputStreamReader);
@@ -149,22 +163,14 @@ public class PersonsFile {
      * Reads the list of persons from the CSV file into a list
      * @return A unmodifiable list formed from reading the CSV file
      */
-    private List<Person> readFile() {
-
-        final Function<String, Person> lineToPerson = line -> this.mapLineToPerson(line);
-        final List<Person> persons = new ArrayList<>();
-
-        try ( final BufferedReader reader = this.getReader() ) {
-            persons.addAll(
-                    reader.lines()
-                            .map(lineToPerson)
-                            .collect(toList())
-            );
+    private static Stream<Person> readFile() {
+        try ( final BufferedReader reader = getReader() ) {
+            return reader.lines().flatMap(PersonsFile::lineToPersonStream).collect(toList()).stream();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return Collections.unmodifiableList(persons);
+        return Stream.empty();
     }
 
     /**
